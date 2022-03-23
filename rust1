@@ -68,6 +68,7 @@ second() {
     /usr/bin/llvm-profdata merge -o /var/tmp/pgo/rustprofile.profdata /var/tmp/pgo/*.profraw || :
     /usr/bin/clang ./clib.c -c -o ./clib.o $CFLAGS_USE
     /usr/bin/llvm-ar crus ./libxyz.a ./clib.o
+    rustc --verbose $RUSTFLAGS_USE -L. ./interesting.rs
     rustc --verbose $RUSTFLAGS_USE -L. -o ./rsmain ./main.rs
     ./rsmain
     exa --long --all --icons ./rsmain
