@@ -59,6 +59,7 @@ first() {
     /usr/bin/clang ./clib.c $CFLAGS_GENERATE -c -o ./clib.o
     /usr/bin/llvm-ar crus ./libxyz.a ./clib.o
     rustc --verbose $RUSTFLAGS_GENERATE -L. ./interesting.rs
+    rustc --verbose $RUSTFLAGS_GENERATE -L. --emit=obj -o ./rsmain.o ./main.rs
     rustc --verbose $RUSTFLAGS_GENERATE -L. -o ./rsmain ./main.rs
     ./rsmain
     exa --long --all --icons ./rsmain
@@ -77,6 +78,7 @@ second() {
     /usr/bin/clang ./clib.c $CFLAGS_USE -c -o ./clib.o
     /usr/bin/llvm-ar crus ./libxyz.a ./clib.o
     rustc --verbose $RUSTFLAGS_USE -L. ./interesting.rs
+    rustc --verbose $RUSTFLAGS_USE -L. --emit=obj -o ./rsmain.o ./main.rs
     rustc --verbose $RUSTFLAGS_USE -L. -o ./rsmain ./main.rs
     ./rsmain
     exa --long --all --icons ./rsmain
