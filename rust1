@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+export CARGO_NET_GIT_FETCH_WITH_CLI=true
+export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
+export CARGO_HTTP_CAINFO=/var/cache/ca-certs/anchors/ca-certificates.crt
+export CC=clang
+export CXX=clang++
+export CC_x86_64_unknown_linux_gnu=clang
+export CXX_x86_64_unknown_linux_gnu=clang++
+export AR=/usr/bin/llvm-ar
+export RANLIB=/usr/bin/llvm-ranlib
+export NM=/usr/bin/llvm-nm
+export AR_x86_64_unknown_linux_gnu=/usr/bin/llvm-ar
+export RANLIB_x86_64_unknown_linux_gnu=/usr/bin/llvm-ranlib
+export NM_x86_64_unknown_linux_gnu=/usr/bin/llvm-nm
+export CRATE_CC_NO_DEFAULTS=1
+export CARGO_BUILD_JOBS=16
+export PCRE2_SYS_STATIC=1
+export OPENSSL_STATIC=yes
+export OPENSSL_LIB_DIR=/usr/lib64/
+export OPENSSL_INCLUDE_DIR=/usr/include/
+export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
+export COMMON_FLAGS="-Copt-level=3 -Ccodegen-units=1 -Cpanic=abort"
+
+clean() {
+    rm ./rsmain || :
+    rm libxyz.a || :
+    rm clib.o || :
+    rm /var/tmp/pgo/merged.profdata || :
+    rm /var/tmp/pgo/*.profraw || :
+}
+
+first() {
+    rm ./rsmain || :
+    rm libxyz.a || :
+    rm clib.o || :
+    rm /var/tmp/pgo/merged.profdata || :
+    rm /var/tmp/pgo/*.profraw || :
+    /usr/bin/clang ./clib.c -fprofile-generate=/var/tmp/pgo -flto=thin -c -o ./clib.o -O3
+    /usr/bin/llvm-ar crus ./libxyz.a ./clib.o
+    rustc -Clinker-plugin-lto=on -Cprofile-generate=/var/tmp/pgo -L. $COMMON_FLAGS -Clinker=/usr/bin/clang -Clink-arg=-fuse-ld=lld -o ./rsmain ./main.rs
+    ./rsmain
+    exa --long --all --icons ./rsmain
+    ldd ./rsmain
+}
+
+second() {
+    rm ./rsmain || :
+    rm libxyz.a || :
+    rm clib.o || :
+    /usr/bin/llvm-profdata merge -o /var/tmp/pgo/merged.profdata /var/tmp/pgo/*.profraw
+    /usr/bin/clang ./clib.c -fprofile-use=/var/tmp/pgo/merged.profdata -flto=thin -c -o ./clib.o -O3
+    /usr/bin/llvm-ar crus ./libxyz.a ./clib.o
+    rustc -Clinker-plugin-lto=on -Cprofile-use=/var/tmp/pgo/merged.profdata -L. $COMMON_FLAGS -Clinker=/usr/bin/clang -Clink-arg=-fuse-ld=lld -o ./rsmain ./main.rs
+    ./rsmain
+    exa --long --all --icons ./rsmain
+    ldd ./rsmain
+}
+
+case $1 in
+  c)
+    clean;
+    ;;
+  1)
+    first;
+    ;;
+  2)
+    second;
+    ;;
+  *)
+    echo "Unknown option"
+    ;;
+esac
