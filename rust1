@@ -37,6 +37,7 @@ export RUSTFLAGS_USE="-Zunstable-options -Clink-arg=--verbose -Cllvm-args=--x86-
 
 clean() {
     rm ./rsmain || :
+    rm ./*.rmeta || :
     rm ./libinteresting.rlib || :
     rm ./libxyz.a || :
     rm ./clib.o || :
@@ -46,6 +47,7 @@ clean() {
 
 first() {
     rm ./rsmain || :
+    rm ./*.rmeta || :
     rm ./libinteresting.rlib || :
     rm libxyz.a || :
     rm clib.o || :
@@ -62,6 +64,7 @@ first() {
 
 second() {
     rm ./rsmain || :
+    rm ./*.rmeta || :
     rm ./libinteresting.rlib || :
     rm libxyz.a || :
     rm clib.o || :
