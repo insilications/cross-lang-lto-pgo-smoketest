@@ -20,7 +20,6 @@ export OPENSSL_STATIC=yes
 export OPENSSL_LIB_DIR=/usr/lib64/
 export OPENSSL_INCLUDE_DIR=/usr/include/
 export LLVM_PROFILE_FILE="/var/tmp/pgo/code-%p-%m.profraw"
-export COMMON_FLAGS="-Copt-level=3 -Ccodegen-units=1 -Cpanic=abort"
 ##
 export PGO_GEN="-fprofile-generate=/var/tmp/pgo/"
 export CFLAGS_GENERATE="-Wno-unused-command-line-argument -DNDEBUG -Wall -Wl,-mllvm,-x86-use-vzeroupper=0 -mllvm -x86-use-vzeroupper=0 -flto=full -Wl,--lto-partitions=1 -Wl,--lto-O3 -Wl,-O2 -Ofast -mno-vzeroupper -march=native -mtune=native -Wl,-mllvm,-mcpu=native -fuse-ld=lld -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,-plugin-opt=O3,-plugin-opt=mcpu=native,-plugin-opt=lto-partitions=1 -Wl,-z,now,-z,relro,-z,max-page-size=0x1000,-z,separate-code -Wno-error -mprefer-vector-width=256 -falign-functions=32 -fno-semantic-interposition -Wl,-Bsymbolic-functions -fno-stack-protector -fno-trapping-math -fno-math-errno -ftree-slp-vectorize -ftree-vectorize -feliminate-unused-debug-types -fno-plt -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -fomit-frame-pointer -fasynchronous-unwind-tables -static-libstdc++ -static-libgcc -pthread -fPIC -pipe $PGO_GEN"
@@ -38,6 +37,8 @@ export RUSTFLAGS_USE="-Zunstable-options -Clink-arg=--verbose -Cllvm-args=--x86-
 clean() {
     rm ./rsmain || :
     rm ./*.rmeta || :
+    rm ./*.o || :
+    rm -rf false/ || :
     rm ./libinteresting.rlib || :
     rm ./libxyz.a || :
     rm ./clib.o || :
@@ -48,6 +49,8 @@ clean() {
 first() {
     rm ./rsmain || :
     rm ./*.rmeta || :
+    rm ./*.o || :
+    rm -rf false/ || :
     rm ./libinteresting.rlib || :
     rm libxyz.a || :
     rm clib.o || :
@@ -65,11 +68,13 @@ first() {
 second() {
     rm ./rsmain || :
     rm ./*.rmeta || :
+    rm ./*.o || :
+    rm -rf false/ || :
     rm ./libinteresting.rlib || :
     rm libxyz.a || :
     rm clib.o || :
     /usr/bin/llvm-profdata merge -o /var/tmp/pgo/rustprofile.profdata /var/tmp/pgo/*.profraw || :
-    /usr/bin/clang ./clib.c -c -o ./clib.o $CFLAGS_USE
+    /usr/bin/clang ./clib.c $CFLAGS_USE -c -o ./clib.o
     /usr/bin/llvm-ar crus ./libxyz.a ./clib.o
     rustc --verbose $RUSTFLAGS_USE -L. ./interesting.rs
     rustc --verbose $RUSTFLAGS_USE -L. -o ./rsmain ./main.rs
