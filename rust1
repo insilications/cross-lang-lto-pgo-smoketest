@@ -44,6 +44,8 @@ clean() {
   rm ./*.o || :
   rm ./*.bc || :
   rm ./*.ll || :
+  rm ./*.dot || :
+  rm ./*.txt || :
   rm -rf false/ || :
   rm ./libinteresting.rlib || :
   rm ./libxyz.a || :
@@ -64,6 +66,8 @@ first() {
   rm ./*.o || :
   rm ./*.bc || :
   rm ./*.ll || :
+  rm ./*.dot || :
+  rm ./*.txt || :
   rm -rf false/ || :
   rm ./libinteresting.rlib || :
   rm libxyz.a || :
@@ -92,6 +96,8 @@ second() {
   rm ./*.o || :
   rm ./*.bc || :
   rm ./*.ll || :
+  rm ./*.dot || :
+  rm ./*.txt || :
   rm -rf false/ || :
   rm ./libinteresting.rlib || :
   rm libxyz.a || :
