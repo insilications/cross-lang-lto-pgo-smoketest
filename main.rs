@@ -1,16 +1,16 @@
-// extern crate interesting;
+extern crate interesting;
 
-// #[link(name = "xyz")]
-// extern "C" {
-//     fn c_always_inlined() -> u32;
-//     fn c_never_inlined() -> u32;
-// }
+#[link(name = "xyz")]
+extern "C" {
+    fn c_always_inlined() -> u32;
+    fn c_never_inlined() -> u32;
+}
 
 fn main() {
-//     unsafe {
-//         println!("blub: {}", c_always_inlined() + c_never_inlined());
-//     }
-    println!("blub: oi");
-//     interesting::hello();
-//     interesting::hello();
+    unsafe {
+        println!("blub: {}", c_always_inlined() + c_never_inlined());
+    }
+//     println!("blub: oi");
+    interesting::hello();
+    interesting::hello();
 }
